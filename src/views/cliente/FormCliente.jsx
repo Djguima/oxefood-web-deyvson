@@ -1,77 +1,108 @@
 import axios from "axios";
-import React from "react";
 import InputMask from 'react-input-mask';
-import { Link } from "react-router-dom";
+import { Link,useLocation } from "react-router-dom";
 import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
+import React, { useState, useEffect} from 'react';
+
+
 import { ENDERECO_API } from '../../views/util/Constantes';
 
-class FormCliente extends React.Component{
 
-	state = {
+function formatarData(data) {
+	// Lógica para formatar a data no formato desejado (DD/MM/AAAA)
+	const dataObj = new Date(data);
+	const dia = String(dataObj.getDate()).padStart(2, '0');
+	const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+	const ano = dataObj.getFullYear();
+	return `${dia}/${mes}/${ano}`;
+  }
 
-		nome: null,
-		cpf: null,
-		dataNascimento: null,
-		foneCelular: null,
-		foneFixo: null
-	}
 
-	salvar = () => {
+export default function FormCliente() {
+  const { state } = useLocation();
 
-		let clienteRequest = {
+  useEffect(() => {
+    if (state != null && state.id != null) {
+      axios.get(ENDERECO_API + "api/cliente/" + state.id)
+        .then((response) => {
+          setIdCliente(response.data.id);
+          setNome(response.data.nome);
+          setCpf(response.data.cpf);
+          setDataNascimento(formatarData(response.data.dataNascimento));
+          setFoneCelular(response.data.foneCelular);
+          setFoneFixo(response.data.foneFixo);
+        })
+        .catch((error) => {
+          console.log('Erro ao obter os dados do cliente.');
+        });
+    }
+  }, [state]);
 
-			nome: this.state.nome,
-			cpf: this.state.cpf,
-			dataNascimento: this.state.dataNascimento,
-			foneCelular: this.state.foneCelular,
-			foneFixo: this.state.foneFixo
-		}
+  const [idCliente, setIdCliente] = useState();
+  const [nome, setNome] = useState();
+  const [cpf, setCpf] = useState();
+  const [dataNascimento, setDataNascimento] = useState();
+  const [foneCelular, setFoneCelular] = useState();
+  const [foneFixo, setFoneFixo] = useState();
 
-		axios.post(ENDERECO_API + "api/cliente", clienteRequest)
-		.then((response) => {
-			console.log('Cliente cadastrado com sucesso.')
-		})
-		.catch((error) => {
-			console.log('Erro ao incluir o um cliente.')
-		})
-	}
+  function salvar() {
+    let clienteRequest = {
+      nome: nome,
+      cpf: cpf,
+      dataNascimento: dataNascimento,
+      foneCelular: foneCelular,
+      foneFixo: foneFixo
+    }
 
-    render(){
-        return(
-            <div>
+    if (idCliente != null) { // Alteração
+      axios.put(ENDERECO_API + "api/cliente/" + idCliente, clienteRequest)
+        .then((response) => {
+          console.log('Cliente alterado com sucesso.');
+        })
+        .catch((error) => {
+          console.log('Erro ao alterar um cliente.');
+        });
+    } else { // Cadastro
+      axios.post(ENDERECO_API + "api/cliente", clienteRequest)
+        .then((response) => {
+          console.log('Cliente cadastrado com sucesso.');
+        })
+        .catch((error) => {
+          console.log('Erro ao incluir o cliente.');
+        });
+    }
+  }
 
-                <div style={{marginTop: '3%'}}>
-
-                    <Container textAlign='justified' >
-
-                        <h2> <span style={{color: 'darkgray'}}> Cliente &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro </h2>
-
-                        <Divider />
-
-						<div style={{marginTop: '4%'}}>
-
-							<Form>
-
-								<Form.Group widths='equal'>
-
-									<Form.Input
-										required
-										fluid
-										label='Nome'
-										maxLength="100"
-										value={this.state.nome}
-										onChange={e => this.setState({nome: e.target.value})}
-									/>
-
-									<Form.Input
-										fluid
-										label='CPF'>
-										<InputMask 
-											mask="999.999.999-99"
-											value={this.state.cpf}
-											onChange={e => this.setState({cpf: e.target.value})}
-										/> 
-									</Form.Input>
+  return (
+    <div>
+      <div style={{ marginTop: '3%' }}>
+        <Container textAlign='justified'>
+          {idCliente === undefined &&
+            <h2> <span style={{ color: 'darkgray' }}> Cliente &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro</h2>
+          }
+          {idCliente !== undefined &&
+            <h2> <span style={{ color: 'darkgray' }}> Cliente &nbsp;<Icon name='angle double right' size="small" /> </span> Alteração</h2>
+          }
+          <Divider />
+          <div style={{ marginTop: '4%' }}>
+            <Form>
+              <Form.Group widths='equal'>
+                <Form.Input
+                  required
+                  fluid
+                  label='Nome'
+                  maxLength="100"
+                  value={nome}
+                  onChange={e => setNome(e.target.value)}
+                />
+                <Form.Input fluid label='CPF'>
+                  <InputMask
+                    mask="999.999.999-99"
+                    value={cpf}
+                    onChange={e => setCpf(e.target.value)}
+                  />
+                </Form.Input>
+              
 
 								</Form.Group>
 								
@@ -83,9 +114,10 @@ class FormCliente extends React.Component{
                                         width={6}>
 										<InputMask 
 											mask="(99) 9999.9999" 
-											value={this.state.foneCelular}
-											onChange={e => this.setState({foneCelular: e.target.value})}
-										/> 
+											value={foneCelular}
+											onChange={e => setFoneCelular( e.target.value)}/> 
+	
+											
 									</Form.Input>
 
 									<Form.Input
@@ -94,8 +126,8 @@ class FormCliente extends React.Component{
                                         width={6}>
 										<InputMask 
 											mask="(99) 9999.9999"
-											value={this.state.foneFixo}
-											onChange={e => this.setState({foneFixo: e.target.value})}
+											value={foneFixo}
+											onChange={e => setFoneFixo(e.target.value)}
 										/> 
 									</Form.Input>
 
@@ -108,8 +140,8 @@ class FormCliente extends React.Component{
                                             mask="99/99/9999" 
                                             maskChar={null}
                                             placeholder="Ex: 20/03/1985"
-											value={this.state.dataNascimento}
-											onChange={e => this.setState({dataNascimento: e.target.value})}
+											value={dataNascimento}
+											onChange={e =>setDataNascimento(e.target.value)}
                                         /> 
                                     </Form.Input>
 
@@ -131,18 +163,19 @@ class FormCliente extends React.Component{
 
 									<Container textAlign='right'>
 										
-										<Button
-											inverted
-											circular
-											icon
-											labelPosition='left'
-											color='blue'
-											floated='right'
-											onClick={this.salvar}
-										>
-											<Icon name='save' />
-											Salvar
-										</Button>
+									<Button
+inverted
+circular
+icon
+labelPosition='left'
+color='blue'
+floated='right'
+onClick={() => salvar()}
+>
+<Icon name='save' />
+Salvar
+</Button>
+
 										
 									</Container>
 
@@ -155,6 +188,4 @@ class FormCliente extends React.Component{
 			</div>
 		)
 	}
-}
 
-export default FormCliente;

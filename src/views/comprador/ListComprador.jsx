@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button, Container, Divider, Icon, Table } from 'semantic-ui-react';
+import { Button, Container, Divider, Icon, Table,List } from 'semantic-ui-react';
 import { ENDERECO_API } from '../../views/util/Constantes';
 
-class ListCliente extends React.Component{
+class ListComprador extends React.Component{
 
     state = {
 
-       listaClientes: []
+       listaCompradores: []
       
     }
 
@@ -20,11 +20,11 @@ class ListCliente extends React.Component{
 
     carregarLista = () => {
 
-        axios.get(ENDERECO_API + "api/cliente")
+        axios.get(ENDERECO_API + "api/comprador")
         .then((response) => {
           
             this.setState({
-               listaClientes: response.data
+                listaCompradores: response.data
             })
         })
 
@@ -52,7 +52,7 @@ class ListCliente extends React.Component{
 
                     <Container textAlign='justified' >
 
-                        <h2> Cliente </h2>
+                        <h2> Compradores </h2>
 
                         <Divider />
 
@@ -67,7 +67,7 @@ class ListCliente extends React.Component{
                                 floated='right'
                             >
                                 <Icon name='clipboard outline' />
-                                <Link to={'/form-cliente'}>Novo</Link>
+                                <Link to={'/form-comprador'}>Novo</Link>
                             </Button>
 
                             <br/><br/><br/>
@@ -76,35 +76,54 @@ class ListCliente extends React.Component{
 
                                 <Table.Header>
                                     <Table.Row>
-                                        <Table.HeaderCell>Nome</Table.HeaderCell>
-                                        <Table.HeaderCell>CPF</Table.HeaderCell>
-                                        <Table.HeaderCell>Data de Nascimento</Table.HeaderCell>
-                                        <Table.HeaderCell>Fone Celular</Table.HeaderCell>
-                                        <Table.HeaderCell>Fone Fixo</Table.HeaderCell>
+                                        <Table.HeaderCell >Nome</Table.HeaderCell>
+                                        <Table.HeaderCell >Endereço Comercial</Table.HeaderCell>
+                                        <Table.HeaderCell >Endereço Residencial</Table.HeaderCell>
+                                        <Table.HeaderCell >Comissao</Table.HeaderCell>
+                                        <Table.HeaderCell >trabaha Home Office</Table.HeaderCell>
+
+                                        <Table.HeaderCell >qtd Compras Medias por Mes</Table.HeaderCell>
+                                        <Table.HeaderCell >Contratado Em</Table.HeaderCell>
+
+
                                         <Table.HeaderCell textAlign='center' width={2}>Ações</Table.HeaderCell>
                                     </Table.Row>
                                 </Table.Header>
                           
                                 <Table.Body>
 
-                                    { this.state.listaClientes.map(cliente => (
+                                    { this.state.listaCompradores.map(comprador => (
 
                                         <Table.Row>
-                                            <Table.Cell>{cliente.nome}</Table.Cell>
-                                            <Table.Cell>{cliente.cpf}</Table.Cell>
-                                            <Table.Cell>{this.formatarData(cliente.dataNascimento)}</Table.Cell>
-                                            <Table.Cell>{cliente.foneCelular}</Table.Cell>
-                                            <Table.Cell>{cliente.foneFixo}</Table.Cell>
+                                            <Table.Cell>{comprador.nome}</Table.Cell>
+                                            <Table.Cell>{comprador.enderecoComercial}</Table.Cell>
+                                            <Table.Cell>{comprador.enderecoResidencial}</Table.Cell>
+                                            <Table.Cell>{comprador.comissao}</Table.Cell>
+                                            <Table.Cell>{comprador.qtdComprasMediasMes}</Table.Cell>
+                                            <Table.Cell>
+                                                { comprador.trabahoHomeOffice === true && 
+                                                    <>Sim</>
+                                                }
+                                                { comprador.trabahoHomeOffice === false && 
+                                                    <>Não</>
+                                                }
+                                        </Table.Cell>
+
+
+
+                                       
+                        
+                        
+                                            
+                                            <Table.Cell>{this.formatarData(comprador.contratadoEm)}</Table.Cell>
                                             <Table.Cell textAlign='center'>
                                               
-                                            <Button
-         inverted
-         circular
-         color='blue'
-         title='Clique aqui para editar os dados deste cliente'
-         icon>
-            <Link to="/form-cliente" state={{id: cliente.id}} style={{color: 'light blue'}}> <Icon name='edit' /> </Link>
-      </Button> &nbsp;
+                                                <Button
+                                                   inverted
+                                                   circular
+                                                   icon='edit'
+                                                   color='blue'
+                                                   itle='Clique aqui para editar os dados deste cliente' /> &nbsp;
                                                    
                                                 <Button
                                                    inverted
@@ -127,4 +146,4 @@ class ListCliente extends React.Component{
    }
 }
 
-export default ListCliente;
+export default ListComprador;
