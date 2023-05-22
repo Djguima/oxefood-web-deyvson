@@ -87,6 +87,7 @@ export default function FormCliente() {
           <div style={{ marginTop: '4%' }}>
             <Form>
               <Form.Group widths='equal'>
+                
                 <Form.Input
                   required
                   fluid
@@ -95,6 +96,8 @@ export default function FormCliente() {
                   value={nome}
                   onChange={e => setNome(e.target.value)}
                 />
+
+
                 <Form.Input fluid label='CPF'>
                   <InputMask
                     mask="999.999.999-99"

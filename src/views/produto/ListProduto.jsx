@@ -4,6 +4,12 @@ import { Link } from "react-router-dom";
 import { Button, Container, Divider, Icon, Table } from 'semantic-ui-react';
 import { ENDERECO_API } from '../../views/util/Constantes';
 
+
+
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
+
 class ListProduto extends React.Component{
 
     state = {
@@ -17,6 +23,44 @@ class ListProduto extends React.Component{
         this.carregarLista();
       
     }
+
+
+    
+deleteProduto = (id) => {
+    Swal.fire({
+      icon: 'question',
+      title: 'Tem certeza?',
+      text: 'Tem certeza de que deseja remover este produto?',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.delete(ENDERECO_API + 'api/produto/' + id)
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'produto removido!',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(() => {
+              this.carregarLista();
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Erro ao remover produto',
+              text: 'Ocorreu um erro ao remover o produto. Por favor, tente novamente.',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
+    });
+  }
+  
+    
 
     carregarLista = () => {
 
@@ -85,19 +129,29 @@ class ListProduto extends React.Component{
                                             <Table.Cell>{p.tempoEntregaMaximo}</Table.Cell>
                                             <Table.Cell textAlign='center'>
                                               
-                                                <Button
-                                                   inverted
-                                                   circular
-                                                   icon='edit'
-                                                   color='blue'
-                                                   itle='Clique aqui para editar os dados deste cliente' /> &nbsp;
-                                                   
+
+
+                                            <Button
+         inverted
+         circular
+         color='blue'
+         title='Clique aqui para editar os dados deste produto'
+         icon>
+            <Link to="/form-produto" state={{id: p.id}} style={{color: 'blue'}}> <Icon name='edit' /> </Link>
+      </Button>&nbsp;
+
+
+
+
                                                 <Button
                                                    inverted
                                                    circular
                                                    icon='trash'
                                                    color='red'
-                                                   title='Clique aqui para remover este cliente' />
+                                                   title='Clique aqui para remover este produto'
+                                                   
+                                                   onClick={() => this.deleteProduto(p.id)}
+                                                   />
 
                                             </Table.Cell>
                                         </Table.Row>

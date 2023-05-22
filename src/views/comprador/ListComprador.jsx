@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 import { Button, Container, Divider, Icon, Table,List } from 'semantic-ui-react';
 import { ENDERECO_API } from '../../views/util/Constantes';
 
+
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
 class ListComprador extends React.Component{
 
     state = {
@@ -17,6 +21,41 @@ class ListComprador extends React.Component{
         this.carregarLista();
       
     }
+
+    
+deleteComprador = (id) => {
+    Swal.fire({
+      icon: 'question',
+      title: 'Tem certeza?',
+      text: 'Tem certeza de que deseja remover este comprador?',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.delete(ENDERECO_API + 'api/comprador/' + id)
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Comprador removido!',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(() => {
+              this.carregarLista();
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Erro ao remover comprador',
+              text: 'Ocorreu um erro ao remover o comprador. Por favor, tente novamente.',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
+    });
+  }
 
     carregarLista = () => {
 
@@ -86,7 +125,7 @@ class ListComprador extends React.Component{
                                         <Table.HeaderCell >Contratado Em</Table.HeaderCell>
 
 
-                                        <Table.HeaderCell textAlign='center' width={2}>Ações</Table.HeaderCell>
+                                        <Table.HeaderCell textAlign='center' width={2} >Ações</Table.HeaderCell>
                                     </Table.Row>
                                 </Table.Header>
                           
@@ -99,7 +138,7 @@ class ListComprador extends React.Component{
                                             <Table.Cell>{comprador.enderecoComercial}</Table.Cell>
                                             <Table.Cell>{comprador.enderecoResidencial}</Table.Cell>
                                             <Table.Cell>{comprador.comissao}</Table.Cell>
-                                            <Table.Cell>{comprador.qtdComprasMediasMes}</Table.Cell>
+
                                             <Table.Cell>
                                                 { comprador.trabahoHomeOffice === true && 
                                                     <>Sim</>
@@ -108,6 +147,8 @@ class ListComprador extends React.Component{
                                                     <>Não</>
                                                 }
                                         </Table.Cell>
+                                            <Table.Cell>{comprador.qtdComprasMediasMes}</Table.Cell>
+                                            
 
 
 
@@ -118,19 +159,17 @@ class ListComprador extends React.Component{
                                             <Table.Cell>{this.formatarData(comprador.contratadoEm)}</Table.Cell>
                                             <Table.Cell textAlign='center'>
                                               
-                                                <Button
-                                                   inverted
-                                                   circular
-                                                   icon='edit'
-                                                   color='blue'
-                                                   itle='Clique aqui para editar os dados deste cliente' /> &nbsp;
-                                                   
-                                                <Button
-                                                   inverted
-                                                   circular
-                                                   icon='trash'
-                                                   color='red'
-                                                   title='Clique aqui para remover este cliente' />
+                                                
+                                            <Button inverted circular color='blue' title='Clique aqui para editar os dados deste Comprador'>
+  <Link to="/form-comprador" state={{id: comprador.id}} style={{color: 'blue'}}>
+    <Icon name='edit' style={{marginRight: '10px'}} />
+  </Link>
+</Button>&nbsp;
+
+<Button inverted circular color='red' title='Clique aqui para remover este comprador' onClick={() => this.deleteComprador(comprador.id)}>
+  <Icon name='trash' style={{marginLeft: '10px'}} />
+</Button>
+
 
                                             </Table.Cell>
                                         </Table.Row>

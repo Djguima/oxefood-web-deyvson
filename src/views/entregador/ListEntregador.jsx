@@ -4,6 +4,12 @@ import { Link } from "react-router-dom";
 import { Button, Container, Divider, Icon, List, Modal, Segment, Table } from 'semantic-ui-react';
 import { ENDERECO_API } from '../../views/util/Constantes';
 
+
+
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+
+
 class ListEntregador extends React.Component{
 
     state = {
@@ -19,6 +25,42 @@ class ListEntregador extends React.Component{
         this.carregarLista();
       
     }
+
+    
+deleteEntregador = (id) => {
+    Swal.fire({
+      icon: 'question',
+      title: 'Tem certeza?',
+      text: 'Tem certeza de que deseja remover este entregador?',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.delete(ENDERECO_API + 'api/entregador/' + id)
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Entregador removido!',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(() => {
+              this.carregarLista();
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Erro ao remover entregador',
+              text: 'Ocorreu um erro ao remover o entregador. Por favor, tente novamente.',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
+    });
+  }
+  
 
     carregarLista = () => {
 
@@ -128,19 +170,25 @@ class ListEntregador extends React.Component{
                                                    onClick={e => this.exibirDetalheEntregador(entregador.id)}
                                                 />  &nbsp;
                                               
-                                                <Button
-                                                   inverted
-                                                   circular
-                                                   icon='edit'
-                                                   color='blue'
-                                                   itle='Clique aqui para editar os dados deste entregador' /> &nbsp;
-                                                   
+
+                                              <Button
+         inverted
+         circular
+         color='blue'
+         title='Clique aqui para editar os dados deste entregador'
+         icon>
+            <Link to="/form-entregador" state={{id: entregador.id}} style={{color: 'blue'}}> <Icon name='edit' /> </Link>
+      </Button>&nbsp;
+
                                                 <Button
                                                    inverted
                                                    circular
                                                    icon='trash'
                                                    color='red'
-                                                   title='Clique aqui para remover este entregador' />
+                                                   title='Clique aqui para remover este entregador' 
+                                                   onClick={() => this.deleteEntregador(entregador.id)}
+        
+                                                   />
 
                                             </Table.Cell>
                                         </Table.Row>
